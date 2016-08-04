@@ -7,9 +7,7 @@ import type {Deferred} from "./defer";
 
 type TrezorDeviceInfo = {path: string};
 
-const PORT_DIFF = 3;
-
-class ChromeUdpTransport {
+export default class ChromeUdpTransport {
   waiting: {[id: string]: Deferred<ArrayBuffer>} = {};
   buffered: {[id: string]: Array<ArrayBuffer>} = {};
 
@@ -43,7 +41,7 @@ class ChromeUdpTransport {
             reject(chrome.runtime.lastError);
           } else {
             try {
-              chrome.sockets.udp.bind(socketId, `127.0.0.1`, port + PORT_DIFF, (result: number) => {
+              chrome.sockets.udp.bind(socketId, `127.0.0.1`, port + portDiff, (result: number) => {
                 if (chrome.runtime.lastError) {
                   reject(chrome.runtime.lastError);
                 } else {
@@ -144,7 +142,8 @@ class ChromeUdpTransport {
     }
   }
 
-  constructor() {
+  constructor(portDiff: number) {
+    this.portDiff = portDiff;
     chrome.sockets.udp.onReceive.addListener(({socketId, data}) => {
       this._udpListener(socketId, data);
     });
@@ -153,8 +152,8 @@ class ChromeUdpTransport {
   ports: Array<number> = [];
 
   setPorts(ports: Array<number>) {
-    if (ports.length > PORT_DIFF) {
-      throw new Error(`Too many ports. Max ${PORT_DIFF} allowed.`);
+    if (ports.length > portDiff) {
+      throw new Error(`Too many ports. Max ${portDiff} allowed.`);
     }
     this.ports = ports;
   }
@@ -201,5 +200,3 @@ class ChromeUdpTransport {
   }
 }
 
-const chromeTransport = new ChromeUdpTransport();
-export default chromeTransport;
