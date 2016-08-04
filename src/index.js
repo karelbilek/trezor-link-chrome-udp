@@ -13,6 +13,65 @@ export default class ChromeUdpTransport {
 
   infos: {[id: string]: {address: string, port: number}} = {};
 
+  portDiff: number;
+
+  constructor(portDiff: number) {
+    this.portDiff = portDiff;
+    chrome.sockets.udp.onReceive.addListener(({socketId, data}) => {
+      this._udpListener(socketId, data);
+    });
+  }
+
+  ports: Array<number> = [];
+
+  setPorts(ports: Array<number>) {
+    if (ports.length > this.portDiff) {
+      throw new Error(`Too many ports. Max ${this.portDiff} allowed.`);
+    }
+    this.ports = ports;
+  }
+
+  enumerate(): Promise<Array<TrezorDeviceInfo>> {
+    const devices = this.ports.map(port => {
+      return {
+        path: port.toString(),
+      };
+    });
+    return Promise.resolve(devices);
+  }
+
+  send(device: string, session: string, data: ArrayBuffer): Promise<void> {
+    const socket = parseInt(session);
+    if (isNaN(socket)) {
+      return Promise.reject(new Error(`Session not a number`));
+    }
+    return this._udpSend(socket, data);
+  }
+
+  receive(device: string, session: string): Promise<ArrayBuffer> {
+    const socket = parseInt(session);
+    if (isNaN(socket)) {
+      return Promise.reject(new Error(`Session not a number`));
+    }
+    return this._udpReceive(socket);
+  }
+
+  connect(device: string): Promise<string> {
+    const port = parseInt(device);
+    if (isNaN(port)) {
+      return Promise.reject(new Error(`Device not a number`));
+    }
+    return this._udpConnect(port).then(n => n.toString());
+  }
+
+  disconnect(path: string, session: string): Promise<void> {
+    const socket = parseInt(session);
+    if (isNaN(socket)) {
+      return Promise.reject(new Error(`Session not a number`));
+    }
+    return this._udpDisconnect(socket);
+  }
+
   _udpDisconnect(socketId: number): Promise<void> {
     return new Promise((resolve, reject) => {
       try {
@@ -41,7 +100,7 @@ export default class ChromeUdpTransport {
             reject(chrome.runtime.lastError);
           } else {
             try {
-              chrome.sockets.udp.bind(socketId, `127.0.0.1`, port + portDiff, (result: number) => {
+              chrome.sockets.udp.bind(socketId, `127.0.0.1`, port + this.portDiff, (result: number) => {
                 if (chrome.runtime.lastError) {
                   reject(chrome.runtime.lastError);
                 } else {
@@ -142,61 +201,5 @@ export default class ChromeUdpTransport {
     }
   }
 
-  constructor(portDiff: number) {
-    this.portDiff = portDiff;
-    chrome.sockets.udp.onReceive.addListener(({socketId, data}) => {
-      this._udpListener(socketId, data);
-    });
-  }
-
-  ports: Array<number> = [];
-
-  setPorts(ports: Array<number>) {
-    if (ports.length > portDiff) {
-      throw new Error(`Too many ports. Max ${portDiff} allowed.`);
-    }
-    this.ports = ports;
-  }
-
-  enumerate(): Promise<Array<TrezorDeviceInfo>> {
-    const devices = this.ports.map(port => {
-      return {
-        path: port.toString(),
-      };
-    });
-    return Promise.resolve(devices);
-  }
-
-  send(device: string, session: string, data: ArrayBuffer): Promise<void> {
-    const socket = parseInt(session);
-    if (isNaN(socket)) {
-      return Promise.reject(new Error(`Session not a number`));
-    }
-    return this._udpSend(socket, data);
-  }
-
-  receive(device: string, session: string): Promise<ArrayBuffer> {
-    const socket = parseInt(session);
-    if (isNaN(socket)) {
-      return Promise.reject(new Error(`Session not a number`));
-    }
-    return this._udpReceive(socket);
-  }
-
-  connect(device: string): Promise<string> {
-    const port = parseInt(device);
-    if (isNaN(port)) {
-      return Promise.reject(new Error(`Device not a number`));
-    }
-    return this._udpConnect(port).then(n => n.toString());
-  }
-
-  disconnect(path: string, session: string): Promise<void> {
-    const socket = parseInt(session);
-    if (isNaN(socket)) {
-      return Promise.reject(new Error(`Session not a number`));
-    }
-    return this._udpDisconnect(socket);
-  }
 }
 
