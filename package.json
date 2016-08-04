@@ -1,0 +1,39 @@
+{
+  "name": "trezor-link-chrome-udp",
+  "version": "0.1.1",
+  "description": "Trezor Link plugin for chrome UDP",
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "make build",
+    "check": "make check"
+  },
+  "repository": "https://github.com/runn1ng/trezor-link-chrome-udp.git",
+  "author": "Karel Bílek <kb@karelbilek.com>",
+  "license": "LGPL-3.0+",
+  "babel": {
+    "presets": [
+      "chrome-49"
+    ],
+    "plugins": [
+      "transform-flow-strip-types",
+      "transform-class-properties",
+      "transform-object-rest-spread",
+      "add-module-exports"
+    ]
+  },
+  "bugs": {
+    "url": "https://github.com/runn1ng/trezor-link-chrome-udp/issues"
+  },
+  "homepage": "https://github.com/runn1ng/trezor-link-chrome-udp",
+  "devDependencies": {
+    "babel-cli": "^6.11.4",
+    "babel-plugin-add-module-exports": "^0.1.2",
+    "babel-plugin-transform-class-properties": "^6.4.0",
+    "babel-plugin-transform-flow-strip-types": "^6.4.0",
+    "babel-plugin-transform-object-rest-spread": "^6.3.13",
+    "babel-preset-chrome-49": "^1.0.0"
+  },
+  "peerDependencies": {
+    "trezor-link": "^0.1.5"
+  }
+}
