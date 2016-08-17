@@ -15,11 +15,22 @@ export default class ChromeUdpTransport {
 
   portDiff: number;
 
+  version: string = __VERSION__;
+
   constructor(portDiff: number) {
     this.portDiff = portDiff;
-    chrome.sockets.udp.onReceive.addListener(({socketId, data}) => {
-      this._udpListener(socketId, data);
-    });
+  }
+
+  init(): Promise<void> {
+    try {
+      chrome.sockets.udp.onReceive.addListener(({socketId, data}) => {
+        this._udpListener(socketId, data);
+      });
+      return Promise.resolve();
+    } catch (e) {
+      // if not Chrome, not sockets etc, this will reject
+      return Promise.reject(e);
+    }
   }
 
   ports: Array<number> = [];
