@@ -7,7 +7,7 @@ import type {Deferred} from "./defer";
 
 type TrezorDeviceInfo = {path: string};
 
-export default class ChromeUdpTransport {
+export default class ChromeUdpPlugin {
   waiting: {[id: string]: Deferred<ArrayBuffer>} = {};
   buffered: {[id: string]: Array<ArrayBuffer>} = {};
 
