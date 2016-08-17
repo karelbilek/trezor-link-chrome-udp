@@ -2,6 +2,8 @@
 
 "use strict";
 
+declare var __VERSION__: string;
+
 import {defer} from "./defer";
 import type {Deferred} from "./defer";
 
