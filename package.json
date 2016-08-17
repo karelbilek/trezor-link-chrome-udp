@@ -4,6 +4,9 @@
   "description": "Trezor Link plugin for chrome UDP",
   "main": "lib/index.js",
   "scripts": {
+    "preversion": "make check && make build",
+    "version": "make build && git add -A lib && git commit -am 'Build'",
+    "postversion": "git push && git push --tags && npm publish",
     "build": "make build",
     "check": "make check"
   },
@@ -18,7 +21,8 @@
       "transform-flow-strip-types",
       "transform-class-properties",
       "transform-object-rest-spread",
-      "add-module-exports"
+      "add-module-exports",
+      "inline-version"
     ]
   },
   "bugs": {
@@ -28,6 +32,7 @@
   "devDependencies": {
     "babel-cli": "^6.11.4",
     "babel-plugin-add-module-exports": "^0.1.2",
+    "babel-plugin-inline-version": "^1.0.2",
     "babel-plugin-transform-class-properties": "^6.4.0",
     "babel-plugin-transform-flow-strip-types": "^6.4.0",
     "babel-plugin-transform-object-rest-spread": "^6.3.13",
